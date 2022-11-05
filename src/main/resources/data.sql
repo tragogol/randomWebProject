@@ -1,1 +1,0 @@
-INSERT INTO TBL_USERDATA (username) VALUES ('TEST');
