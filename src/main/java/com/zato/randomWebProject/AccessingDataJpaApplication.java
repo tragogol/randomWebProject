@@ -15,7 +15,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.sql.DataSource;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class AccessingDataJpaApplication {
     private static final Logger log = LoggerFactory.getLogger(AccessingDataJpaApplication.class);
 
