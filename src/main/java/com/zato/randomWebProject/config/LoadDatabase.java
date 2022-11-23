@@ -1,7 +1,7 @@
 package com.zato.randomWebProject.config;
 
-import com.zato.randomWebProject.data.Employee;
-import com.zato.randomWebProject.repository.EmployeeRepository;
+import com.zato.randomWebProject.data.UserStats;
+import com.zato.randomWebProject.repository.UserStatsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -14,11 +14,12 @@ class LoadDatabase {
   private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
   @Bean
-  CommandLineRunner initDatabase(EmployeeRepository repository) {
-
+  CommandLineRunner initUserStats(UserStatsRepository repository) {
     return args -> {
-      log.info("Preloading " + repository.save(new Employee("Bilbo", "Baggins", "burglar")));
-      log.info("Preloading " + repository.save(new Employee("Frodo", "Baggins", "thief")));
+      log.info("Preloading " + repository.save(new UserStats( 100, 50)));
+      log.info("Preloading " + repository.save(new UserStats( 100, 45)));
     };
   }
+
+
 }
