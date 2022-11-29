@@ -1,4 +1,8 @@
 package com.zato.randomWebProject.repository;
 
-public interface UsersRepository {
+import com.zato.randomWebProject.data.Users;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UsersRepository extends JpaRepository<Users, Long> {
+    Users findByUsername(String username);
 }

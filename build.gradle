@@ -21,6 +21,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas:2.7.5'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.security:spring-security-test'
+	implementation group: 'org.springframework.security', name: 'spring-security-taglibs', version: '6.0.0'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.0.0'
+
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
 
