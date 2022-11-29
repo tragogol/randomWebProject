@@ -27,9 +27,14 @@ public class LoginController {
         this.authentication = authentication;
     }
 
-    @GetMapping("login")
+    @GetMapping("/login")
     public ResponseEntity<?> loginGet() {
-        return ResponseEntity.status(HttpStatus.OK).body("Login get");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth.getName() != null) {
+            return ResponseEntity.status(HttpStatus.OK).body("You are " + auth.getName());
+        } else  {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not logged in");
+        }
     }
 
     @PostMapping("/login")
@@ -40,7 +45,7 @@ public class LoginController {
                     UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authObj);
         } catch (BadCredentialsException e){
-            throw new Exception("Credential invalid");
+            return ResponseEntity.status(HttpStatus.OK).body("Credential invalid");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Logged");
     }
