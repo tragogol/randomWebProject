@@ -1,5 +1,6 @@
 package com.zato.randomWebProject.service;
 
+import com.zato.randomWebProject.data.Balance;
 import com.zato.randomWebProject.data.Users;
 import com.zato.randomWebProject.repository.RolesRepository;
 import com.zato.randomWebProject.repository.UsersRepository;
@@ -54,7 +55,9 @@ public class UserService implements UserDetailsService {
         if (userFromDB != null) {
             return false;
         }
-
+        Balance tmpBalance = new Balance();
+        tmpBalance.setBalanceValue(500D);
+        user.setBalance(tmpBalance);
         user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
@@ -70,7 +73,7 @@ public class UserService implements UserDetailsService {
     }
 
     public List<Users> usergtList(Long idMin) {
-        return em.createQuery("SELECT u FROM Users u WHERE u.user_id > :paramId", Users.class)
+        return em.createQuery("SELECT u FROM Users u WHERE u.userId > :paramId", Users.class)
                 .setParameter("paramId", idMin).getResultList();
     }
 }

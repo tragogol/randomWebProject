@@ -1,8 +1,13 @@
 package com.zato.randomWebProject.config;
 
+import com.zato.randomWebProject.data.Balance;
 import com.zato.randomWebProject.data.Role;
+import com.zato.randomWebProject.data.Users;
+import com.zato.randomWebProject.repository.BalanceRepository;
 import com.zato.randomWebProject.repository.RolesRepository;
+import com.zato.randomWebProject.repository.UsersRepository;
 import com.zato.randomWebProject.service.UserService;
+import org.h2.engine.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.swing.plaf.SeparatorUI;
+
 @Configuration
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -29,6 +36,22 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     return args -> {
       repository.save(new Role(1L, "USER"));
       repository.save(new Role(2L, "ADMIN"));
+    };
+  }
+
+  @Bean
+  CommandLineRunner initUsers(UsersRepository repository, RolesRepository rolesRepository) {
+    return args -> {
+      Users tmpUser = new Users();
+      tmpUser.setUsername("JOJO1234");
+      tmpUser.setPassword("12345678");
+      userService.saveUser(tmpUser);
+
+      tmpUser = new Users();
+      tmpUser.setUsername("KIKI1234");
+      tmpUser.setPassword("43211234");
+      userService.saveUser(tmpUser);
+
     };
   }
 
