@@ -11,7 +11,8 @@ public class Balance {
     @NotNull
     private Double balanceValue;
 
-    @OneToOne(mappedBy = "balance")
+    @OneToOne
+    @MapsId
     private Users user;
 
     public Balance() {}

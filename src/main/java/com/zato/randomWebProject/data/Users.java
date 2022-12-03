@@ -12,8 +12,7 @@ import java.util.Set;
 public class Users implements UserDetails {
   @Id
   @GeneratedValue
-  @Column(name = "user_id")
-  private Long userId;
+  private Long id;
   @Size(min = 8)
   private String username;
   @Size(min = 8)
@@ -21,19 +20,15 @@ public class Users implements UserDetails {
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<Role> roles;
 
-  //@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @OneToOne(cascade = CascadeType.ALL, optional = false)
-  @JoinColumn(name = "id_balance")
-  private Balance balance;
 
   public Users() {}
 
-  public Long getUserId() {
-    return userId;
+  public Long getId() {
+    return id;
   }
 
-  public void setUserId(Long user_id) {
-    this.userId = user_id;
+  public void setId(Long user_id) {
+    this.id = user_id;
   }
 
   @Override
@@ -62,13 +57,6 @@ public class Users implements UserDetails {
     this.roles = roles;
   }
 
-  public Balance getBalance() {
-    return balance;
-  }
-
-  public void setBalance(Balance balance) {
-    this.balance = balance;
-  }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -98,7 +86,7 @@ public class Users implements UserDetails {
   @Override
   public String toString() {
     return "Users{" +
-            "user_id=" + userId +
+            "user_id=" + id +
             ", username='" + username + '\'' +
             ", password='" + password + '\'' +
             ", roles=" + roles.toString() +

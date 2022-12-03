@@ -10,8 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-
 @RestController
 public class RegistrationController {
 
@@ -29,7 +27,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<?> addUser(@RequestBody @Valid Users userForm, BindingResult bindingResult) {
+    public ResponseEntity<?> addUser(@RequestBody Users userForm, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something wrong");
