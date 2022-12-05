@@ -1,9 +1,11 @@
 package com.zato.randomWebProject.config;
 
 import com.zato.randomWebProject.data.Balance;
+import com.zato.randomWebProject.data.Product;
 import com.zato.randomWebProject.data.Role;
 import com.zato.randomWebProject.data.Users;
 import com.zato.randomWebProject.repository.BalanceRepository;
+import com.zato.randomWebProject.repository.ProductRepository;
 import com.zato.randomWebProject.repository.RolesRepository;
 import com.zato.randomWebProject.repository.UsersRepository;
 import com.zato.randomWebProject.service.UserService;
@@ -56,6 +58,16 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
+  CommandLineRunner initProducts(ProductRepository productRepository) {
+    return args -> {
+      Product tmpProduct = new Product();
+      tmpProduct.setName("ABOBUS");
+
+    };
+  }
+
+
+  @Bean
   public BCryptPasswordEncoder bCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();
   }
@@ -67,7 +79,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             .disable()
             .authorizeRequests()
 
-            .antMatchers("/", "/resources/**", "/logout", "/registration", "/login").permitAll()
+            .antMatchers("/", "/resources/**", "/logout", "/registration", "/login", "/marketplace/**", "/marketplace").permitAll()
             .antMatchers("/contentPage", "/getRole/**","/getRole").fullyAuthenticated()
             .anyRequest().authenticated()
             .and()

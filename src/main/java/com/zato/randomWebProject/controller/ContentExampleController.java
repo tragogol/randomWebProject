@@ -5,8 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.Null;
-
 @RestController
 public class ContentExampleController {
 
@@ -22,7 +20,7 @@ public class ContentExampleController {
     }
 
     @GetMapping("/getRole/{username}")
-    public ResponseEntity<?> knowRole(@PathVariable String username) {
+    public ResponseEntity<?> getUser(@PathVariable String username) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body("you are " + repository.findByUsername(username).toString());
         } catch (NullPointerException e) {

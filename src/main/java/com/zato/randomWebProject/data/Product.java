@@ -10,7 +10,6 @@ public class Product {
   @GeneratedValue
   private Long id;
   private String name;
-  private Double cost;
 
   public Product() {}
 
@@ -30,20 +29,11 @@ public class Product {
     this.name = name;
   }
 
-  public Double getCost() {
-    return cost;
-  }
-
-  public void setCost(Double cost) {
-    this.cost = cost;
-  }
-
   @Override
   public String toString() {
     return "Product{" +
         "id=" + id +
-        ", name='" + name + '\'' +
-        ", cost=" + cost +
+        ", name='" + name +
         '}';
   }
 }

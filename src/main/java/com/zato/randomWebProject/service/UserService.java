@@ -5,6 +5,11 @@ import com.zato.randomWebProject.data.Users;
 import com.zato.randomWebProject.repository.RolesRepository;
 import com.zato.randomWebProject.repository.UsersRepository;
 import com.zato.randomWebProject.data.Role;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -67,6 +72,15 @@ public class UserService implements UserDetailsService {
             return true;
         }
         return false;
+    }
+
+    public Users findSelfUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth.getName() != null) {
+            return userRepository.findByUsername(auth.getName());
+        } else  {
+            return null;
+        }
     }
 
     public List<Users> usergtList(Long idMin) {

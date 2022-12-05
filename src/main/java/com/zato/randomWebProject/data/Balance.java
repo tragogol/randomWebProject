@@ -17,7 +17,6 @@ public class Balance {
 
     public Balance() {}
 
-
     public Long getId() {
         return id;
     }

@@ -63,6 +63,8 @@ public class ProductRequest {
     return "ProductRequest{" +
         "id=" + id +
         ", product=" + product +
+        ", quantity=" + quantity +
+        ", price=" + price +
         ", seller=" + seller +
         '}';
   }
