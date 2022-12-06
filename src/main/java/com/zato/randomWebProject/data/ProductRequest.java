@@ -5,8 +5,8 @@ import javax.persistence.*;
 @Entity
 public class ProductRequest {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long request_id;
+  @GeneratedValue
+  private Long id;
   @ManyToOne
   private Product product;
 
@@ -18,12 +18,12 @@ public class ProductRequest {
   public Users seller;
   public ProductRequest() {}
 
-  public Long getRequest_id() {
-    return request_id;
+  public Long getId() {
+    return id;
   }
 
-  public void setRequest_id(Long id) {
-    this.request_id = id;
+  public void setId(Long id) {
+    this.id = id;
   }
 
   public Product getProduct() {
@@ -61,7 +61,7 @@ public class ProductRequest {
   @Override
   public String toString() {
     return "ProductRequest{" +
-        "id=" + request_id +
+        "id=" + id +
         ", product=" + product +
         ", quantity=" + quantity +
         ", price=" + price +

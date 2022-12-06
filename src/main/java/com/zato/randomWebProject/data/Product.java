@@ -8,18 +8,18 @@ import javax.persistence.Id;
 @Entity
 public class Product {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long product_id;
+  @GeneratedValue
+  private Long id;
   private String name;
 
   public Product() {}
 
-  public Long getProduct_id() {
-    return product_id;
+  public Long getId() {
+    return id;
   }
 
-  public void setProduct_id(Long id) {
-    this.product_id = id;
+  public void setId(Long id) {
+    this.id = id;
   }
 
   public String getName() {
@@ -33,7 +33,7 @@ public class Product {
   @Override
   public String toString() {
     return "Product{" +
-        "id=" + product_id +
+        "id=" + id +
         ", name='" + name +
         '}';
   }

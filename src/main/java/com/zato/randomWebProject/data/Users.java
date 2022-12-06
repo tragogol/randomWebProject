@@ -11,8 +11,8 @@ import java.util.Set;
 @Entity
 public class Users implements UserDetails {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long user_id;
+  @GeneratedValue
+  private Long id;
   @Size(min = 8)
   private String username;
   @Size(min = 8)
@@ -23,12 +23,12 @@ public class Users implements UserDetails {
 
   public Users() {}
 
-  public Long getUser_id() {
-    return user_id;
+  public Long getId() {
+    return id;
   }
 
-  public void setUser_id(Long user_id) {
-    this.user_id = user_id;
+  public void setId(Long user_id) {
+    this.id = user_id;
   }
 
   @Override
@@ -86,7 +86,7 @@ public class Users implements UserDetails {
   @Override
   public String toString() {
     return "Users{" +
-            "user_id=" + user_id +
+            "user_id=" + id +
             ", username='" + username + '\'' +
             ", password='" + password + '\'' +
             ", roles=" + roles.toString() +

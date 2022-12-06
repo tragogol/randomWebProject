@@ -6,8 +6,8 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class Balance {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long balance_id;
+    @GeneratedValue
+    private Long id;
     @NotNull
     private Double balanceValue;
 
@@ -17,12 +17,12 @@ public class Balance {
 
     public Balance() {}
 
-    public Long getBalance_id() {
-        return balance_id;
+    public Long getId() {
+        return id;
     }
 
-    public void setBalance_id(Long id) {
-        this.balance_id = id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Double getBalanceValue() {
@@ -44,7 +44,7 @@ public class Balance {
     @Override
     public String toString() {
         return "UserBalance{" +
-                "user_id=" + balance_id +
+                "user_id=" + id +
                 ", balance=" + balanceValue +
                 '}';
     }
