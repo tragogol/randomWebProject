@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long balance_id;
     @NotNull
     private Double balanceValue;
 
@@ -17,12 +17,12 @@ public class Balance {
 
     public Balance() {}
 
-    public Long getId() {
-        return id;
+    public Long getBalance_id() {
+        return balance_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setBalance_id(Long id) {
+        this.balance_id = id;
     }
 
     public Double getBalanceValue() {
@@ -44,7 +44,7 @@ public class Balance {
     @Override
     public String toString() {
         return "UserBalance{" +
-                "user_id=" + id +
+                "user_id=" + balance_id +
                 ", balance=" + balanceValue +
                 '}';
     }

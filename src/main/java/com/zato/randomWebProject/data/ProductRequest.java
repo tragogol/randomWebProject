@@ -5,25 +5,25 @@ import javax.persistence.*;
 @Entity
 public class ProductRequest {
   @Id
-  @GeneratedValue
-  private Long id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long request_id;
   @ManyToOne
   private Product product;
 
   private Long quantity;
-  private Long price;
+  private Double price;
 
   @ManyToOne
   @JoinColumn(name="userId", nullable=false, updatable=false)
   public Users seller;
   public ProductRequest() {}
 
-  public Long getId() {
-    return id;
+  public Long getRequest_id() {
+    return request_id;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public void setRequest_id(Long id) {
+    this.request_id = id;
   }
 
   public Product getProduct() {
@@ -42,11 +42,11 @@ public class ProductRequest {
     this.quantity = quantity;
   }
 
-  public Long getPrice() {
+  public Double getPrice() {
     return price;
   }
 
-  public void setPrice(Long price) {
+  public void setPrice(Double price) {
     this.price = price;
   }
 
@@ -61,7 +61,7 @@ public class ProductRequest {
   @Override
   public String toString() {
     return "ProductRequest{" +
-        "id=" + id +
+        "id=" + request_id +
         ", product=" + product +
         ", quantity=" + quantity +
         ", price=" + price +

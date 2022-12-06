@@ -5,24 +5,26 @@ import javax.persistence.*;
 @Entity
 public class ProductStore {
   @Id
-  @GeneratedValue
-  private Long id;
-  @OneToOne
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long store_id;
+
+  private Long quantity;
+
+  @ManyToOne
   @MapsId
   private Product product;
-  private Long quantity;
-  @OneToOne
+  @ManyToOne
   @MapsId
   private Users user;
 
   public ProductStore() {}
 
-  public Long getId() {
-    return id;
+  public Long getStore_id() {
+    return store_id;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public void setStore_id(Long id) {
+    this.store_id = id;
   }
 
   public Product getProduct() {

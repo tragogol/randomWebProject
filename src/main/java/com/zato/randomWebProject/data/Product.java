@@ -2,23 +2,24 @@ package com.zato.randomWebProject.data;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Product {
   @Id
-  @GeneratedValue
-  private Long id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long product_id;
   private String name;
 
   public Product() {}
 
-  public Long getId() {
-    return id;
+  public Long getProduct_id() {
+    return product_id;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public void setProduct_id(Long id) {
+    this.product_id = id;
   }
 
   public String getName() {
@@ -32,7 +33,7 @@ public class Product {
   @Override
   public String toString() {
     return "Product{" +
-        "id=" + id +
+        "id=" + product_id +
         ", name='" + name +
         '}';
   }
