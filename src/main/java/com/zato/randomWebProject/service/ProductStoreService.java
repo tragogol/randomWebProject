@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.validation.constraints.Null;
+import java.util.List;
 
 @Service
 public class ProductStoreService {
@@ -23,16 +25,19 @@ public class ProductStoreService {
   }
 
   public boolean isAvailable(Users user, Product product, long quantity){
-    ProductStore prStore = storeRepository.findByUserNumberAndProductNumber(user.getId(), product.getId());
-    if (prStore != null && prStore.getQuantity() >= quantity) {
-      return true;
-    } else {
-      return false;
+    try {
+      ProductStore prStore = storeRepository.findByUserIdAndProductId(user.getId(), product.getId());
+      if (prStore.getQuantity() >= quantity) {
+        return true;
+      }
+    } catch (NullPointerException e) {
+      System.out.println(e);
     }
+    return false;
   }
 
   public boolean isAvailable(ProductRequest productRequest){
-    ProductStore prStore = storeRepository.findByUserNumberAndProductNumber(productRequest.getSeller().getId(),
+    ProductStore prStore = storeRepository.findByUserIdAndProductId(productRequest.getSeller().getId(),
                                                                       productRequest.getProduct().getId());
     if (prStore != null && prStore.getQuantity() >= productRequest.getQuantity()) {
       return true;
@@ -42,13 +47,13 @@ public class ProductStoreService {
   }
 
   public boolean AddProduct(Product product, long quantity, Users user) {
-    ProductStore tmpStore = storeRepository.findByUserNumberAndProductNumber(user.getId(),product.getId());
+    ProductStore tmpStore = storeRepository.findByUserIdAndProductId(user.getId(),product.getId());
 
     if (tmpStore == null) {
       ProductStore productStore = new ProductStore();
       productStore.setQuantity(quantity);
-      productStore.setProductNumber(product.getId());
-      productStore.setUserNumber(user.getId());
+      productStore.setProductId(product.getId());
+      productStore.setUserId(user.getId());
       storeRepository.save(productStore);
       return true;
     }
@@ -58,5 +63,10 @@ public class ProductStoreService {
       return true;
     }
   }
+
+  public List<ProductStore> getYourStorage(Users user) {
+    return storeRepository.findByUserId(user.getId());
+  }
+
 
 }

@@ -88,7 +88,6 @@ public class Users implements UserDetails {
     return "Users{" +
             "user_id=" + id +
             ", username='" + username + '\'' +
-            ", password='" + password + '\'' +
             ", roles=" + roles.toString() +
             '}';
   }

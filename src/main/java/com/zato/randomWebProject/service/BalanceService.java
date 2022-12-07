@@ -41,4 +41,13 @@ public class BalanceService {
     }
 
   }
+
+  public Balance getBalance(Users user) {
+    try {
+      return balanceRepository.findByUser(user);
+    } catch (NullPointerException e) {
+      System.out.println(e);
+    }
+    return null;
+  }
 }

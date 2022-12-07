@@ -1,9 +1,8 @@
 package com.zato.randomWebProject.controller;
 
-import com.zato.randomWebProject.data.Product;
-import com.zato.randomWebProject.data.ProductRequest;
-import com.zato.randomWebProject.data.Users;
+import com.zato.randomWebProject.data.*;
 import com.zato.randomWebProject.repository.ProductRepository;
+import com.zato.randomWebProject.repository.ProductStoreRepository;
 import com.zato.randomWebProject.service.*;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
@@ -21,24 +20,34 @@ public class MarketPlaceController {
   private final ProductRequestService productRequestService;
   private final ProductRepository productRepository;
   private final ProductStoreService productStoreService;
+  private final ProductStoreRepository productStoreRepository;
+
   private final UserService userService;
 
 
   public MarketPlaceController(BalanceService balanceService, ProductService productService,
                                ProductRequestService productRequestService, ProductRepository productRepository,
-                               ProductStoreService productStoreService, UserService userService) {
+                               ProductStoreService productStoreService, ProductStoreRepository productStoreRepository,
+                               UserService userService) {
     this.balanceService = balanceService;
     this.productService = productService;
     this.productRequestService = productRequestService;
     this.productRepository = productRepository;
     this.productStoreService = productStoreService;
+    this.productStoreRepository = productStoreRepository;
     this.userService = userService;
   }
 
   @GetMapping("marketplace/requests")
   public ResponseEntity<?> getRequests() {
     List<ProductRequest> requests = productRequestService.getRequestList();
-    return ResponseEntity.status(HttpStatus.OK).body(requests.toString());
+    StringBuilder responseBody = new StringBuilder();
+    for (ProductRequest request :
+        requests) {
+      responseBody.append(request.toString()).append("\n");
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(responseBody);
   }
 
   @PostMapping("marketplace/make_request")
@@ -94,4 +103,42 @@ public class MarketPlaceController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something gone wrong");
     }
   }
+
+  @GetMapping("marketplace/storage_list")
+  public ResponseEntity<?> getStorageList() {
+    List<ProductStore> selfStorage = productStoreService.getYourStorage(userService.findSelfUser());
+
+    if (selfStorage.isEmpty()) return ResponseEntity.status(HttpStatus.OK).body("Empty");
+
+    StringBuilder responseBody = new StringBuilder();
+    for (ProductStore singleStore :
+        selfStorage) {
+      responseBody.append(singleStore.toString()).append("\n");
+    }
+    return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+  }
+
+  @GetMapping("marketplace/buy_product?name={productName}&quantity={quantity}&minPrice={price}")
+  public ResponseEntity<?> buyProduct(@PathVariable String productName, @PathVariable Long quantity,
+                                      @PathVariable Double price) {
+    Product product = productRepository.findByName(productName);
+    if (product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No such a product");
+
+    if (!productRequestService.isAvailableRequest(product, quantity, price))
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The request does not meet your requirements");
+
+    Users user = userService.findSelfUser();
+    Balance balance = balanceService.getBalance(user);
+    if (balance == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad balance");
+
+    ProductStore userStorage = productStoreRepository.findByUserIdAndProductId(user.getId(), product.getId());
+
+    if (productRequestService.buyProduct(balance, userStorage, product, quantity, price)) {
+      return ResponseEntity.status(HttpStatus.OK).body("Complete \n" + "Rest balance: " + balance.getBalanceValue());
+    } else {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something gone wrong");
+    }
+
+  }
+
 }

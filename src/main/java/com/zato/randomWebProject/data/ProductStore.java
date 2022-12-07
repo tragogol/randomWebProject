@@ -10,8 +10,8 @@ public class ProductStore {
 
   private Long quantity;
 
-  private Long productNumber;
-  private Long userNumber;
+  private Long productId;
+  private Long userId;
 
   public ProductStore() {}
 
@@ -31,19 +31,29 @@ public class ProductStore {
     this.quantity = quantity;
   }
 
-  public Long getProductNumber() {
-    return productNumber;
+  public Long getProductId() {
+    return productId;
   }
 
-  public void setProductNumber(Long productNumber) {
-    this.productNumber = productNumber;
+  public void setProductId(Long productId) {
+    this.productId = productId;
   }
 
-  public Long getUserNumber() {
-    return userNumber;
+  public Long getUserId() {
+    return userId;
   }
 
-  public void setUserNumber(Long userNumber) {
-    this.userNumber = userNumber;
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
+
+  @Override
+  public String toString() {
+    return "ProductStore{" +
+        "id=" + id +
+        ", quantity=" + quantity +
+        ", productId=" + productId +
+        ", userId=" + userId +
+        '}';
   }
 }
