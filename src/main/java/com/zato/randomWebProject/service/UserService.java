@@ -1,13 +1,8 @@
 package com.zato.randomWebProject.service;
 
-import com.zato.randomWebProject.data.Balance;
 import com.zato.randomWebProject.data.Users;
-import com.zato.randomWebProject.repository.RolesRepository;
 import com.zato.randomWebProject.repository.UsersRepository;
 import com.zato.randomWebProject.data.Role;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,11 +32,9 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Users user = userRepository.findByUsername(username);
-
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-
         return user;
     }
 

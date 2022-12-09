@@ -45,7 +45,7 @@ public class LoginController {
                     UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authObj);
         } catch (BadCredentialsException e){
-            return ResponseEntity.status(HttpStatus.OK).body("Credential invalid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Credential invalid");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Logged");
     }

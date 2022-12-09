@@ -1,17 +1,13 @@
 package com.zato.randomWebProject.config;
 
-import com.zato.randomWebProject.data.Balance;
 import com.zato.randomWebProject.data.Product;
 import com.zato.randomWebProject.data.Role;
 import com.zato.randomWebProject.data.Users;
-import com.zato.randomWebProject.repository.BalanceRepository;
 import com.zato.randomWebProject.repository.ProductRepository;
 import com.zato.randomWebProject.repository.RolesRepository;
 import com.zato.randomWebProject.repository.UsersRepository;
+import com.zato.randomWebProject.service.BalanceService;
 import com.zato.randomWebProject.service.UserService;
-import org.h2.engine.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -22,16 +18,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import javax.swing.plaf.SeparatorUI;
 
 @Configuration
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
   public UserService userService;
+  @Autowired
+  public BalanceService balanceService;
 
   @Bean
   CommandLineRunner initRoles(RolesRepository repository) {
@@ -42,7 +36,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  CommandLineRunner initUsers(UsersRepository repository, RolesRepository rolesRepository) {
+  CommandLineRunner initUsers(UsersRepository repository) {
     return args -> {
       Users tmpUser = new Users();
       tmpUser.setUsername("JOJO1234");
@@ -53,7 +47,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
       tmpUser.setUsername("KIKI1234");
       tmpUser.setPassword("43211234");
       userService.saveUser(tmpUser);
-
     };
   }
 
