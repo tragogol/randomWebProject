@@ -79,7 +79,8 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             .disable()
             .authorizeRequests()
 
-            .antMatchers("/", "/resources/**", "/logout", "/registration", "/login", "/marketplace/**", "/marketplace").permitAll()
+            .antMatchers("/", "/resources/**", "/logout", "/registration", "/login",
+                "/marketplace/**", "/marketplace", "/balance", "/balance/**").permitAll()
             .antMatchers("/contentPage", "/getRole/**","/getRole").fullyAuthenticated()
             .anyRequest().authenticated()
             .and()

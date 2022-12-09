@@ -64,6 +64,23 @@ public class ProductStoreService {
     }
   }
 
+  public boolean changeStorageQuantity(Product product, long quantity, Users user) {
+    ProductStore tmpStore = storeRepository.findByUserIdAndProductId(user.getId(),product.getId());
+
+    if (tmpStore.getQuantity() >= quantity) {
+      tmpStore.setQuantity(tmpStore.getQuantity() - quantity);
+      if (tmpStore.getQuantity() == 0) {
+        storeRepository.delete(tmpStore);
+      } else  {
+        storeRepository.save(tmpStore);
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
   public List<ProductStore> getYourStorage(Users user) {
     return storeRepository.findByUserId(user.getId());
   }

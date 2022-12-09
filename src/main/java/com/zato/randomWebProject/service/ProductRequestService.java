@@ -15,23 +15,24 @@ public class ProductRequestService {
   @PersistenceContext
   private EntityManager em;
   private final ProductRequestRepository productRequestRepository;
+  private final ProductStoreRepository productStoreRepository;
+  private final BalanceService balanceService;
 
-  public ProductRequestService(ProductRequestRepository productRequestRepository) {
+  public ProductRequestService(ProductRequestRepository productRequestRepository, ProductStoreRepository productStoreRepository, BalanceService balanceService) {
     this.productRequestRepository = productRequestRepository;
+    this.productStoreRepository = productStoreRepository;
+    this.balanceService = balanceService;
   }
 
-  public boolean ReplaceRequest(ProductRequest request) {
-    productRequestRepository.save(request);
-    return true;
-  }
-
-  public ProductRequest createProductRequest(Product product, Users seller, long quantity, double price) {
+  public boolean createProductRequest(Product product, Users seller, long quantity, double price) {
     ProductRequest productRequest = new ProductRequest();
     productRequest.setProduct(product);
     productRequest.setSeller(seller);
     productRequest.setQuantity(quantity);
     productRequest.setPrice(price);
-    return productRequest;
+
+    productRequestRepository.save(productRequest);
+    return true;
   }
 
   public double getProductPrice(Product product) {
@@ -55,19 +56,54 @@ public class ProductRequestService {
     return em.createQuery("SELECT pr FROM ProductRequest pr WHERE pr.product = " + product.getId(), ProductRequest.class).getResultList();
   }
 
+  public List<ProductRequest> getRequestListByProductAndPrice(Product product, Double maxPrice) {
+    return em.createQuery("SELECT pr " +
+        "FROM ProductRequest pr " +
+        "WHERE pr.product = " + product.getId() + " AND pr.price <= " + maxPrice + " " +
+        "ORDER BY pr.quantity", ProductRequest.class).getResultList();
+  }
+
 
   public boolean buyProduct(Balance balance, ProductStore userStorage, Product product, Long quantity, Double price) {
-    List<ProductRequest> tmpProductList = productRequestRepository.findByProductAndPriceOrderByQuantity(product, price);
-    Double tmpBalanceValue = balance.getBalanceValue();
+    List<ProductRequest> tmpProductList = getRequestListByProductAndPrice(product, price);
+
     for (ProductRequest singleRequest :
         tmpProductList) {
       if (singleRequest.getQuantity() > quantity) {
+        singleRequest.setQuantity(singleRequest.getQuantity() - quantity);
+        productRequestRepository.save(singleRequest);
 
+        userStorage.setQuantity(userStorage.getQuantity() + quantity);
+        productStoreRepository.save(userStorage);
+
+        balanceService.ChangeBalance(-quantity * singleRequest.getPrice(), balance.getUser());
+        balanceService.ChangeBalance(quantity * singleRequest.getPrice(), singleRequest.getSeller());
+
+        return true;
+      } else {
+        userStorage.setQuantity(userStorage.getQuantity() + singleRequest.getQuantity());
+        productStoreRepository.save(userStorage);
+
+        quantity -= singleRequest.getQuantity();
+        balanceService.ChangeBalance(-quantity * singleRequest.getPrice(), balance.getUser());
+        balanceService.ChangeBalance(quantity * singleRequest.getPrice(), singleRequest.getSeller());
+
+        productRequestRepository.delete(singleRequest);
+      }
+      if (quantity == 0) {
+        return true;
       }
     }
 
-    clearRequests();
     return true;
+  }
+
+  private void checkRequest(ProductRequest productRequest) {
+    if (productRequest.getQuantity() == 0) {
+      productRequestRepository.delete(productRequest);
+    } else {
+      productRequestRepository.save(productRequest);
+    }
   }
 
   public boolean isAvailableRequest(Product product, long quantity, double minPrice) {
@@ -85,16 +121,5 @@ public class ProductRequestService {
 
     return false;
   }
-
-  private void clearRequests() {
-    List<ProductRequest> requestsList = productRequestRepository.findAll();
-    for (ProductRequest singleRequest :
-        requestsList) {
-      if (singleRequest.getQuantity() == 0) {
-        productRequestRepository.delete(singleRequest);
-      }
-    }
-  }
-
 
 }

@@ -4,12 +4,10 @@ import com.zato.randomWebProject.data.*;
 import com.zato.randomWebProject.repository.ProductRepository;
 import com.zato.randomWebProject.repository.ProductStoreRepository;
 import com.zato.randomWebProject.service.*;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -50,16 +48,6 @@ public class MarketPlaceController {
     return ResponseEntity.status(HttpStatus.OK).body(responseBody);
   }
 
-  @PostMapping("marketplace/make_request")
-  public ResponseEntity<?> postRequest(@RequestBody ProductRequest request) {
-    if(productStoreService.isAvailable(request)) {
-      productRequestService.ReplaceRequest(request);
-      return ResponseEntity.status(HttpStatus.OK).body("Request replaced");
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request data");
-    }
-  }
-
   @GetMapping("marketplace/product_list")
   public ResponseEntity<?> productInfo() {
     List<Product> productList = productService.getAllProduct();
@@ -96,9 +84,9 @@ public class MarketPlaceController {
     Users tmpUser = userService.findSelfUser();
     Product tmpProduct = productRepository.findById(productId);
     if (productStoreService.isAvailable(tmpUser, tmpProduct, quantity)) {
-      ProductRequest tmpRequest = productRequestService.createProductRequest(tmpProduct,tmpUser,quantity,price);
-      productRequestService.ReplaceRequest(tmpRequest);
-      return ResponseEntity.status(HttpStatus.OK).body("Request replaced " + tmpRequest.toString());
+      productRequestService.createProductRequest(tmpProduct,tmpUser,quantity,price);
+      productStoreService.changeStorageQuantity(tmpProduct, quantity, tmpUser);
+      return ResponseEntity.status(HttpStatus.OK).body("Request replaced");
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something gone wrong");
     }
@@ -118,7 +106,7 @@ public class MarketPlaceController {
     return ResponseEntity.status(HttpStatus.OK).body(responseBody);
   }
 
-  @GetMapping("marketplace/buy_product?name={productName}&quantity={quantity}&minPrice={price}")
+  @GetMapping("marketplace/buy_product/name={productName}&quantity={quantity}&minPrice={price}")
   public ResponseEntity<?> buyProduct(@PathVariable String productName, @PathVariable Long quantity,
                                       @PathVariable Double price) {
     Product product = productRepository.findByName(productName);
