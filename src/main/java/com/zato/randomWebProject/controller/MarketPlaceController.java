@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 public class MarketPlaceController {
@@ -72,7 +73,11 @@ public class MarketPlaceController {
     product = productService.createProductWithReturn(product);
     if (product != null) {
       Users tmpUser = userService.findSelfUser();
-      productStoreService.AddProduct(product, quantity, tmpUser);
+      ProductStore tmpStore = productStoreService.addProduct(product, quantity, tmpUser);
+      Set<ProductStore> productStores = tmpUser.getProductStores();
+      productStores.add(tmpStore);
+      tmpUser.setProductStores(productStores);
+      userService.updateUser(tmpUser);
       return ResponseEntity.status(HttpStatus.OK).body("Product registered ");
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something gone wrong");
@@ -106,9 +111,9 @@ public class MarketPlaceController {
     return ResponseEntity.status(HttpStatus.OK).body(responseBody);
   }
 
-  @GetMapping("marketplace/buy_product/name={productName}&quantity={quantity}&minPrice={price}")
-  public ResponseEntity<?> buyProduct(@PathVariable String productName, @PathVariable Long quantity,
-                                      @PathVariable Double price) {
+  @GetMapping("marketplace/buy_product")
+  public ResponseEntity<?> buyProduct(@RequestParam String productName, @RequestParam Long quantity,
+                                      @RequestParam Double price) {
     Product product = productRepository.findByName(productName);
     if (product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No such a product");
 
@@ -121,15 +126,17 @@ public class MarketPlaceController {
 
     ProductStore userStorage = null;
     try{
-
       userStorage = productStoreRepository.findByUserIdAndProductId(user.getId(), product.getId());
     } catch (NullPointerException e) {
-      productStoreService.AddProduct(product, 0, user);
-      userStorage = productStoreRepository.findByUserIdAndProductId(user.getId(), product.getId());
+      Set<ProductStore> productStores = user.getProductStores();
+      userStorage = productStoreService.addProduct(product, 0, user);
+      productStores.add(userStorage);
+      user.setProductStores(productStores);
+      userService.updateUser(user);
     }
-    if (userStorage == null) productStoreService.AddProduct(product, 0, user);
+    if (userStorage == null) productStoreService.addProduct(product, 0, user);
 
-    if (productRequestService.buyProduct(balance, userStorage, product, quantity, price)) {
+    if (productRequestService.buyProduct(balance, user, userStorage, product, quantity, price)) {
       if (userStorage.getQuantity() == 0) productStoreRepository.delete(userStorage);
       return ResponseEntity.status(HttpStatus.OK).body("Complete \n" + "Rest balance: " + balance.getBalanceValue());
     } else {

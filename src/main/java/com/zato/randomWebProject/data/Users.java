@@ -22,8 +22,8 @@ public class Users implements UserDetails {
 
   @OneToOne
   private Balance balance;
-  //@OneToMany
-  //private Set<ProductStore> productStores;
+  @OneToMany
+  private Set<ProductStore> productStores;
 
   public Users() {}
 
@@ -65,17 +65,17 @@ public class Users implements UserDetails {
     return balance;
   }
 
-//  public Set<ProductStore> getProductStores() {
-//    return productStores;
-//  }
-//
-//  public void setProductStores(Set<ProductStore> productStores) {
-//    this.productStores = productStores;
-//  }
-
   public void setBalance(Balance balance) {
     this.balance = balance;
   }
+    public Set<ProductStore> getProductStores() {
+    return productStores;
+  }
+
+  public void setProductStores(Set<ProductStore> productStores) {
+    this.productStores = productStores;
+  }
+
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

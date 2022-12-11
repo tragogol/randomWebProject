@@ -10,8 +10,8 @@ public class ProductStore {
 
   private Long quantity;
 
-  private Long productId;
-  private Long userId;
+  @ManyToOne
+  private Product product;
 
   public ProductStore() {}
 
@@ -31,20 +31,12 @@ public class ProductStore {
     this.quantity = quantity;
   }
 
-  public Long getProductId() {
-    return productId;
+  public Product getProduct() {
+    return product;
   }
 
-  public void setProductId(Long productId) {
-    this.productId = productId;
-  }
-
-  public Long getUserId() {
-    return userId;
-  }
-
-  public void setUserId(Long userId) {
-    this.userId = userId;
+  public void setProduct(Product product) {
+    this.product = product;
   }
 
   @Override
@@ -52,8 +44,7 @@ public class ProductStore {
     return "ProductStore{" +
         "id=" + id +
         ", quantity=" + quantity +
-        ", productId=" + productId +
-        ", userId=" + userId +
+        ", product=" + product +
         '}';
   }
 }

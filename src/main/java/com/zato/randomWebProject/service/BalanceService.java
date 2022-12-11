@@ -51,15 +51,15 @@ public class BalanceService {
 
     if (value < 0) {
       if (isDecreaseAvailable(value, user)) {
-        //Balance balance = balanceRepository.findByUser(user);
-        //balance.setBalanceValue(balance.getBalanceValue() + value);
+        Balance balance = balanceRepository.findByUser(user);
+        balance.setBalanceValue(balance.getBalanceValue() + value);
         return true;
       } else {
         return false;
       }
     } else {
-      //Balance balance = balanceRepository.findByUser(user);
-      //balance.setBalanceValue(balance.getBalanceValue() + value);
+      Balance balance = balanceRepository.findByUser(user);
+      balance.setBalanceValue(balance.getBalanceValue() + value);
       return true;
     }
   }
