@@ -11,10 +11,6 @@ public class Balance {
     @NotNull
     private Double balanceValue;
 
-    @OneToOne
-    @MapsId
-    private Users user;
-
     public Balance() {}
 
     public Long getId() {
@@ -31,14 +27,6 @@ public class Balance {
 
     public void setBalanceValue(Double balance) {
         this.balanceValue = balance;
-    }
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
     }
 
     @Override

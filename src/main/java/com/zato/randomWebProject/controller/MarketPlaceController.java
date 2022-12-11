@@ -79,10 +79,10 @@ public class MarketPlaceController {
     }
   }
 
-  @PostMapping("marketplace/place_request/{productId}&{quantity}&{price}")
-  public ResponseEntity<?> placeRequest(@PathVariable long productId, @PathVariable long quantity, @PathVariable double price) {
+  @GetMapping("marketplace/place_request")
+  public ResponseEntity<?> placeRequest(@RequestParam String productName, @RequestParam long quantity, @RequestParam double price) {
     Users tmpUser = userService.findSelfUser();
-    Product tmpProduct = productRepository.findById(productId);
+    Product tmpProduct = productRepository.findByName(productName);
     if (productStoreService.isAvailable(tmpUser, tmpProduct, quantity)) {
       productRequestService.createProductRequest(tmpProduct,tmpUser,quantity,price);
       productStoreService.changeStorageQuantity(tmpProduct, quantity, tmpUser);
@@ -119,11 +119,21 @@ public class MarketPlaceController {
     Balance balance = balanceService.getBalance(user);
     if (balance == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad balance");
 
-    ProductStore userStorage = productStoreRepository.findByUserIdAndProductId(user.getId(), product.getId());
+    ProductStore userStorage = null;
+    try{
+
+      userStorage = productStoreRepository.findByUserIdAndProductId(user.getId(), product.getId());
+    } catch (NullPointerException e) {
+      productStoreService.AddProduct(product, 0, user);
+      userStorage = productStoreRepository.findByUserIdAndProductId(user.getId(), product.getId());
+    }
+    if (userStorage == null) productStoreService.AddProduct(product, 0, user);
 
     if (productRequestService.buyProduct(balance, userStorage, product, quantity, price)) {
+      if (userStorage.getQuantity() == 0) productStoreRepository.delete(userStorage);
       return ResponseEntity.status(HttpStatus.OK).body("Complete \n" + "Rest balance: " + balance.getBalanceValue());
     } else {
+      if (userStorage.getQuantity() == 0) productStoreRepository.delete(userStorage);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something gone wrong");
     }
 

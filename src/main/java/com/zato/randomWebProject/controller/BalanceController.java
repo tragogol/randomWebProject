@@ -22,20 +22,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class BalanceController {
 
   private final BalanceService balanceService;
-  private final BalanceRepository balanceRepository;
   private UserService userService;
 
-  public BalanceController(BalanceService balanceService, BalanceRepository balanceRepository, UserService userService) {
+  public BalanceController(BalanceService balanceService, UserService userService) {
     this.balanceService = balanceService;
-    this.balanceRepository = balanceRepository;
     this.userService = userService;
   }
 
   @GetMapping("/balance/create_balance")
   public ResponseEntity<?> createBalance(){
     Users user = userService.findSelfUser();
-    if (balanceService.getBalance(user) == null) {
-      balanceService.createBalance(user);
+    if (balanceService.createBalance(user)) {
       return ResponseEntity.status(HttpStatus.OK).body("Balance created");
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You already have one");

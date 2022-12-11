@@ -8,7 +8,7 @@ import javax.persistence.Id;
 @Entity
 public class Product {
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
   private String name;
 

@@ -59,6 +59,21 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
+    public boolean updateUser(Users user) {
+        Users userFromDB = userRepository.findByUsername(user.getUsername());
+
+        if (userFromDB == null) {
+            return false;
+        }
+        try {
+            userRepository.save(user);
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e);
+        }
+        return true;
+    }
+
+
     public boolean deleteUser(Long userId) {
         if (userRepository.findById(userId).isPresent()) {
             userRepository.deleteById(userId);

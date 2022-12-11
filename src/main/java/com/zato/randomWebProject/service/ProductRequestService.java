@@ -17,11 +17,13 @@ public class ProductRequestService {
   private final ProductRequestRepository productRequestRepository;
   private final ProductStoreRepository productStoreRepository;
   private final BalanceService balanceService;
+  private final UserService userService;
 
-  public ProductRequestService(ProductRequestRepository productRequestRepository, ProductStoreRepository productStoreRepository, BalanceService balanceService) {
+  public ProductRequestService(ProductRequestRepository productRequestRepository, ProductStoreRepository productStoreRepository, BalanceService balanceService, UserService userService) {
     this.productRequestRepository = productRequestRepository;
     this.productStoreRepository = productStoreRepository;
     this.balanceService = balanceService;
+    this.userService = userService;
   }
 
   public boolean createProductRequest(Product product, Users seller, long quantity, double price) {
@@ -56,16 +58,16 @@ public class ProductRequestService {
     return em.createQuery("SELECT pr FROM ProductRequest pr WHERE pr.product = " + product.getId(), ProductRequest.class).getResultList();
   }
 
-  public List<ProductRequest> getRequestListByProductAndPrice(Product product, Double maxPrice) {
+  public List<ProductRequest> getRequestListByProductAndPrice(Product product, Double maxPrice, Long userId) {
     return em.createQuery("SELECT pr " +
         "FROM ProductRequest pr " +
-        "WHERE pr.product = " + product.getId() + " AND pr.price <= " + maxPrice + " " +
+        "WHERE pr.product = " + product.getId() + " AND pr.price <= " + maxPrice + " AND pr.seller.id !=" + userId +
         "ORDER BY pr.quantity", ProductRequest.class).getResultList();
   }
 
 
   public boolean buyProduct(Balance balance, ProductStore userStorage, Product product, Long quantity, Double price) {
-    List<ProductRequest> tmpProductList = getRequestListByProductAndPrice(product, price);
+    List<ProductRequest> tmpProductList = getRequestListByProductAndPrice(product, price, userStorage.getUserId());
 
     for (ProductRequest singleRequest :
         tmpProductList) {
@@ -76,8 +78,9 @@ public class ProductRequestService {
         userStorage.setQuantity(userStorage.getQuantity() + quantity);
         productStoreRepository.save(userStorage);
 
-        balanceService.ChangeBalance(-quantity * singleRequest.getPrice(), balance.getUser());
-        balanceService.ChangeBalance(quantity * singleRequest.getPrice(), singleRequest.getSeller());
+
+        balanceService.changeBalance(-quantity * singleRequest.getPrice(), userService.findSelfUser());
+        balanceService.changeBalance(quantity * singleRequest.getPrice(), singleRequest.getSeller());
 
         return true;
       } else {
@@ -85,8 +88,8 @@ public class ProductRequestService {
         productStoreRepository.save(userStorage);
 
         quantity -= singleRequest.getQuantity();
-        balanceService.ChangeBalance(-quantity * singleRequest.getPrice(), balance.getUser());
-        balanceService.ChangeBalance(quantity * singleRequest.getPrice(), singleRequest.getSeller());
+        balanceService.changeBalance(-quantity * singleRequest.getPrice(), userService.findSelfUser());
+        balanceService.changeBalance(quantity * singleRequest.getPrice(), singleRequest.getSeller());
 
         productRequestRepository.delete(singleRequest);
       }

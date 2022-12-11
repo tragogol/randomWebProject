@@ -20,6 +20,10 @@ public class Users implements UserDetails {
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<Role> roles;
 
+  @OneToOne
+  private Balance balance;
+  //@OneToMany
+  //private Set<ProductStore> productStores;
 
   public Users() {}
 
@@ -57,6 +61,21 @@ public class Users implements UserDetails {
     this.roles = roles;
   }
 
+  public Balance getBalance() {
+    return balance;
+  }
+
+//  public Set<ProductStore> getProductStores() {
+//    return productStores;
+//  }
+//
+//  public void setProductStores(Set<ProductStore> productStores) {
+//    this.productStores = productStores;
+//  }
+
+  public void setBalance(Balance balance) {
+    this.balance = balance;
+  }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
