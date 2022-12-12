@@ -15,7 +15,7 @@ public class BalanceService {
     this.userService = userService;
   }
 
-  public boolean ChangeBalance(double value) {
+  public boolean changeBalance(double value) {
     if (value < 0) {
       if (isDecreaseAvailable(value)){
         Users user = userService.findSelfUser();
@@ -37,7 +37,7 @@ public class BalanceService {
 
   }
 
-  public boolean ChangeBalance(double value, Users user) {
+  public boolean changeBalance(double value, Users user) {
     if (value < 0) {
       if (isDecreaseAvailable(value, user)){
         Balance balance = balanceRepository.findByUser(user);

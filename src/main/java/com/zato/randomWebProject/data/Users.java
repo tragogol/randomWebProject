@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -90,5 +91,18 @@ public class Users implements UserDetails {
             ", username='" + username + '\'' +
             ", roles=" + roles.toString() +
             '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Users users = (Users) o;
+    return Objects.equals(id, users.id) && Objects.equals(username, users.username) && Objects.equals(password, users.password) && Objects.equals(roles, users.roles);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, username, password, roles);
   }
 }

@@ -90,13 +90,13 @@ public class ProductRequestService {
       if ( productRequest.getQuantity() < restQuantity) {
         double currentPrice = productRequest.getQuantity() * productRequest.getPrice();
         finalPrice += currentPrice;
-        balanceService.ChangeBalance(currentPrice, productRequest.seller);
+        balanceService.changeBalance(currentPrice, productRequest.seller);
         restQuantity -= productRequest.getQuantity();
         productRequest.setQuantity(0L);
       } else {
         double currentPrice = productRequest.getPrice() * restQuantity;
         finalPrice += currentPrice;
-        balanceService.ChangeBalance(currentPrice, productRequest.seller);
+        balanceService.changeBalance(currentPrice, productRequest.seller);
         productRequest.setQuantity(productRequest.getQuantity() - restQuantity);
       }
 
@@ -105,7 +105,7 @@ public class ProductRequestService {
 
     checkRequest(requestsToBuy);
     userStorage.setQuantity(quantity);
-    balanceService.ChangeBalance(-finalPrice, user);
+    balanceService.changeBalance(-finalPrice, user);
     return true;
   }
 
