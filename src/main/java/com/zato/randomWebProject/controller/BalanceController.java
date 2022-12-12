@@ -8,9 +8,7 @@ import com.zato.randomWebProject.service.UserService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.security.auth.login.LoginException;
@@ -23,7 +21,7 @@ public class BalanceController {
 
   private final BalanceService balanceService;
   private final BalanceRepository balanceRepository;
-  private UserService userService;
+  private final UserService userService;
 
   public BalanceController(BalanceService balanceService, BalanceRepository balanceRepository, UserService userService) {
     this.balanceService = balanceService;

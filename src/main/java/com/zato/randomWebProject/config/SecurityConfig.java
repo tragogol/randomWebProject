@@ -42,23 +42,15 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
       tmpUser.setUsername("JOJO1234");
       tmpUser.setPassword("12345678");
       userService.saveUser(tmpUser);
+      balanceService.createBalance(tmpUser);
 
       tmpUser = new Users();
       tmpUser.setUsername("KIKI1234");
       tmpUser.setPassword("43211234");
       userService.saveUser(tmpUser);
+      balanceService.createBalance(tmpUser);
     };
   }
-
-  @Bean
-  CommandLineRunner initProducts(ProductRepository productRepository) {
-    return args -> {
-      Product tmpProduct = new Product();
-      tmpProduct.setName("ABOBUS");
-
-    };
-  }
-
 
   @Bean
   public BCryptPasswordEncoder bCryptPasswordEncoder() {

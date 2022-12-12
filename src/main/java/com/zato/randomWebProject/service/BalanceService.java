@@ -58,21 +58,13 @@ public class BalanceService {
     Users user = userService.findSelfUser();
     Balance balance = balanceRepository.findByUser(user);
 
-    if (balance.getBalanceValue() - value >= 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return balance.getBalanceValue() - value >= 0;
   }
 
   private boolean isDecreaseAvailable(double value, Users user) {
     Balance balance = balanceRepository.findByUser(user);
 
-    if (balance.getBalanceValue() - value >= 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return balance.getBalanceValue() - value >= 0;
   }
 
   public Balance getBalance(Users user) {

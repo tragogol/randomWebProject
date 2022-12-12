@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.validation.constraints.Null;
 import java.util.List;
 
 @Service
@@ -39,14 +38,10 @@ public class ProductStoreService {
   public boolean isAvailable(ProductRequest productRequest){
     ProductStore prStore = storeRepository.findByUserIdAndProductId(productRequest.getSeller().getId(),
                                                                       productRequest.getProduct().getId());
-    if (prStore != null && prStore.getQuantity() >= productRequest.getQuantity()) {
-      return true;
-    } else {
-      return false;
-    }
+    return prStore != null && prStore.getQuantity() >= productRequest.getQuantity();
   }
 
-  public boolean AddProduct(Product product, long quantity, Users user) {
+  public ProductStore AddProduct(Product product, long quantity, Users user) {
     ProductStore tmpStore = storeRepository.findByUserIdAndProductId(user.getId(),product.getId());
 
     if (tmpStore == null) {
@@ -55,12 +50,12 @@ public class ProductStoreService {
       productStore.setProductId(product.getId());
       productStore.setUserId(user.getId());
       storeRepository.save(productStore);
-      return true;
+      return productStore;
     }
     else {
       tmpStore.setQuantity(tmpStore.getQuantity() + quantity);
       storeRepository.save(tmpStore);
-      return true;
+      return tmpStore;
     }
   }
 

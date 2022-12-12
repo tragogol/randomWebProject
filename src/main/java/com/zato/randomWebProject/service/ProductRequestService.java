@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,37 +65,47 @@ public class ProductRequestService {
   }
 
 
-  public boolean buyProduct(Balance balance, ProductStore userStorage, Product product, Long quantity, Double price) {
+  public boolean buyProduct(Balance balance, Users user ,ProductStore userStorage, Product product, Long quantity, Double price) {
     List<ProductRequest> tmpProductList = getRequestListByProductAndPrice(product, price);
+    Long restQuantity = quantity;
+    double finalPrice = 0D;
+    List<ProductRequest> requestsToBuy = new ArrayList<>();
 
-    for (ProductRequest singleRequest :
-        tmpProductList) {
-      if (singleRequest.getQuantity() > quantity) {
-        singleRequest.setQuantity(singleRequest.getQuantity() - quantity);
-        productRequestRepository.save(singleRequest);
-
-        userStorage.setQuantity(userStorage.getQuantity() + quantity);
-        productStoreRepository.save(userStorage);
-
-        balanceService.ChangeBalance(-quantity * singleRequest.getPrice(), balance.getUser());
-        balanceService.ChangeBalance(quantity * singleRequest.getPrice(), singleRequest.getSeller());
-
-        return true;
+    for (ProductRequest productRequest : tmpProductList) {
+      if (restQuantity - productRequest.getQuantity() >= 0) {
+        finalPrice += productRequest.getQuantity() * productRequest.getPrice();
+        restQuantity -= productRequest.getQuantity();
+        requestsToBuy.add(productRequest);
       } else {
-        userStorage.setQuantity(userStorage.getQuantity() + singleRequest.getQuantity());
-        productStoreRepository.save(userStorage);
-
-        quantity -= singleRequest.getQuantity();
-        balanceService.ChangeBalance(-quantity * singleRequest.getPrice(), balance.getUser());
-        balanceService.ChangeBalance(quantity * singleRequest.getPrice(), singleRequest.getSeller());
-
-        productRequestRepository.delete(singleRequest);
+        finalPrice += productRequest.getPrice() * restQuantity;
+        restQuantity = 0L;
       }
-      if (quantity == 0) {
-        return true;
-      }
+      if (restQuantity <= 0) break;
     }
 
+    if (restQuantity > 0 || finalPrice > balance.getBalanceValue()) return false;
+
+    restQuantity = quantity;
+    for (ProductRequest productRequest : requestsToBuy) {
+      if ( productRequest.getQuantity() < restQuantity) {
+        double currentPrice = productRequest.getQuantity() * productRequest.getPrice();
+        finalPrice += currentPrice;
+        balanceService.ChangeBalance(currentPrice, productRequest.seller);
+        restQuantity -= productRequest.getQuantity();
+        productRequest.setQuantity(0L);
+      } else {
+        double currentPrice = productRequest.getPrice() * restQuantity;
+        finalPrice += currentPrice;
+        balanceService.ChangeBalance(currentPrice, productRequest.seller);
+        productRequest.setQuantity(productRequest.getQuantity() - restQuantity);
+      }
+
+      if (restQuantity == 0) break;
+    }
+
+    checkRequest(requestsToBuy);
+    userStorage.setQuantity(quantity);
+    balanceService.ChangeBalance(-finalPrice, user);
     return true;
   }
 
@@ -104,6 +115,17 @@ public class ProductRequestService {
     } else {
       productRequestRepository.save(productRequest);
     }
+  }
+
+  private void checkRequest(List<ProductRequest> productRequests) {
+    for (ProductRequest productRequest : productRequests) {
+      if (productRequest.getQuantity() == 0) {
+        productRequestRepository.delete(productRequest);
+      } else {
+        productRequestRepository.save(productRequest);
+      }
+    }
+
   }
 
   public boolean isAvailableRequest(Product product, long quantity, double minPrice) {

@@ -2,7 +2,6 @@ package com.zato.randomWebProject.controller;
 
 import com.zato.randomWebProject.data.Users;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -47,7 +46,7 @@ public class LoginController {
         } catch (BadCredentialsException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Credential invalid");
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Logged");
+        return ResponseEntity.status(HttpStatus.OK).body("Logged " + authObj.getName());
     }
 
     @PostMapping("/logout")

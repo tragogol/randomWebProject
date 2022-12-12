@@ -12,7 +12,6 @@ public class Balance {
     private Double balanceValue;
 
     @OneToOne
-    @MapsId
     private Users user;
 
     public Balance() {}

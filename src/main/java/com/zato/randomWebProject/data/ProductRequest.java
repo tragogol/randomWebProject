@@ -14,7 +14,6 @@ public class ProductRequest {
   private Double price;
 
   @ManyToOne
-  @JoinColumn(name="userId", nullable=false, updatable=false)
   public Users seller;
   public ProductRequest() {}
 

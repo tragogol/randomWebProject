@@ -60,29 +60,32 @@ public class MarketPlaceController {
     return ResponseEntity.status(HttpStatus.OK).body(responseBody);
   }
 
-  @GetMapping("marketplace/product_info/{id}")
-  public ResponseEntity<?> productInfo(@PathVariable long id) {
+  @GetMapping("marketplace/product_info")
+  public ResponseEntity<?> productInfo(@RequestParam long id) {
     StringBuilder responseBody = new StringBuilder(productRepository.findById(id).getName() + "\n");
     responseBody.append(productRequestService.getProductPrice(id));
     return ResponseEntity.status(HttpStatus.OK).body(responseBody);
   }
 
-  @PostMapping("marketplace/register_product/{quantity}")
-  public ResponseEntity<?> productRegistration(@RequestBody Product product, @PathVariable long quantity) {
-    product = productService.createProductWithReturn(product);
-    if (product != null) {
+  @GetMapping("marketplace/register_product")
+  public ResponseEntity<?> productRegistration(@RequestParam String productName, @RequestParam long quantity) {
+    Product newProduct = new Product();
+    newProduct.setName(productName);
+
+    newProduct = productService.createProductWithReturn(newProduct);
+    if (newProduct != null) {
       Users tmpUser = userService.findSelfUser();
-      productStoreService.AddProduct(product, quantity, tmpUser);
-      return ResponseEntity.status(HttpStatus.OK).body("Product registered ");
+      productStoreService.AddProduct(newProduct, quantity, tmpUser);
+      return ResponseEntity.status(HttpStatus.OK).body("Product registered " + newProduct);
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something gone wrong");
     }
   }
 
-  @PostMapping("marketplace/place_request/{productId}&{quantity}&{price}")
-  public ResponseEntity<?> placeRequest(@PathVariable long productId, @PathVariable long quantity, @PathVariable double price) {
+  @GetMapping("marketplace/place_request")
+  public ResponseEntity<?> placeRequest(@RequestParam String productName, @RequestParam long quantity, @RequestParam double price) {
     Users tmpUser = userService.findSelfUser();
-    Product tmpProduct = productRepository.findById(productId);
+    Product tmpProduct = productRepository.findByName(productName);
     if (productStoreService.isAvailable(tmpUser, tmpProduct, quantity)) {
       productRequestService.createProductRequest(tmpProduct,tmpUser,quantity,price);
       productStoreService.changeStorageQuantity(tmpProduct, quantity, tmpUser);
@@ -106,9 +109,9 @@ public class MarketPlaceController {
     return ResponseEntity.status(HttpStatus.OK).body(responseBody);
   }
 
-  @GetMapping("marketplace/buy_product/name={productName}&quantity={quantity}&minPrice={price}")
-  public ResponseEntity<?> buyProduct(@PathVariable String productName, @PathVariable Long quantity,
-                                      @PathVariable Double price) {
+  @GetMapping("marketplace/buy_product")
+  public ResponseEntity<?> buyProduct(@RequestParam String productName, @RequestParam Long quantity,
+                                      @RequestParam Double price) {
     Product product = productRepository.findByName(productName);
     if (product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No such a product");
 
@@ -120,10 +123,11 @@ public class MarketPlaceController {
     if (balance == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad balance");
 
     ProductStore userStorage = productStoreRepository.findByUserIdAndProductId(user.getId(), product.getId());
-
-    if (productRequestService.buyProduct(balance, userStorage, product, quantity, price)) {
+    if (userStorage == null) userStorage = productStoreService.AddProduct(product, 0, user);
+    if (productRequestService.buyProduct(balance, user, userStorage, product, quantity, price)) {
       return ResponseEntity.status(HttpStatus.OK).body("Complete \n" + "Rest balance: " + balance.getBalanceValue());
     } else {
+      productStoreRepository.delete(userStorage);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something gone wrong");
     }
 
