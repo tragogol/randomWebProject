@@ -69,9 +69,21 @@ class ProductRequestServiceTest {
       assert false;
     }
     assert Objects.equals(productRepository.findByName(productName).getName(), productName);
+  }
+
+  @Test
+  @WithMockUser(username = "JOJO12345", password = "12345678")
+  public void registerProductCheckCorrectStorage() {
+    marketPlaceController.productRegistration(productName, quantityProduct);
+    try {
+      productRepository.findByName(productName);
+    } catch (NullPointerException e) {
+      assert false;
+    }
     Product product = productRepository.findByName(productName);
     assert productStoreRepository.findByUserIdAndProductId(dummyUser.getId(), product.getId()).getQuantity() == quantityProduct;
   }
+
 
 
 
