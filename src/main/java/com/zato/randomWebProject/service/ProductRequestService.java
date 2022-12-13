@@ -36,14 +36,14 @@ public class ProductRequestService {
     return true;
   }
 
-  public double getProductPrice(Product product) {
+  public double getMinProductPrice(Product product) {
 
     Double minPrice = em.createQuery("SELECT Min(pr.price) FROM ProductRequest pr WHERE pr.product.id = " + product.getId(), Double.class).getSingleResult();
     return Objects.requireNonNullElse(minPrice, 0D);
 
   }
 
-  public double getProductPrice(long id) {
+  public double getMinProductPrice(long id) {
 
     Double minPrice = em.createQuery("SELECT Min(pr.price) FROM ProductRequest pr WHERE pr.product.id = " + id, Double.class).getSingleResult();
     return Objects.requireNonNullElse(minPrice, 0D);
