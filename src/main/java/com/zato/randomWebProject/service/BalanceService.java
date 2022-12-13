@@ -16,55 +16,51 @@ public class BalanceService {
   }
 
   public boolean changeBalance(double value) {
+    Users user = userService.findSelfUser();
+    Balance balance = balanceRepository.findByUser(user);
+
     if (value < 0) {
       if (isDecreaseAvailable(value)){
-        Users user = userService.findSelfUser();
-        Balance balance = balanceRepository.findByUser(user);
-
-        balance.setBalanceValue(balance.getBalanceValue() - value);
-        return true;
+        balance.setBalanceValue(balance.getBalanceValue() + value);
       }
       else {
         return false;
       }
     } else {
-      Users user = userService.findSelfUser();
-      Balance balance = balanceRepository.findByUser(user);
-
-      balance.setBalanceValue(balance.getBalanceValue() - value);
-      return true;
+      balance.setBalanceValue(balance.getBalanceValue() + value);
     }
-
+    balanceRepository.save(balance);
+    return true;
   }
 
   public boolean changeBalance(double value, Users user) {
+    Balance balance = balanceRepository.findByUser(user);
+
     if (value < 0) {
       if (isDecreaseAvailable(value, user)){
-        Balance balance = balanceRepository.findByUser(user);
         balance.setBalanceValue(balance.getBalanceValue() + value);
-        return true;
       }
       else {
         return false;
       }
     } else {
-      Balance balance = balanceRepository.findByUser(user);
       balance.setBalanceValue(balance.getBalanceValue() + value);
-      return true;
     }
+    balanceRepository.save(balance);
+    return true;
   }
 
   private boolean isDecreaseAvailable(double value) {
     Users user = userService.findSelfUser();
     Balance balance = balanceRepository.findByUser(user);
 
-    return balance.getBalanceValue() - value >= 0;
+    return balance.getBalanceValue() + value >= 0;
   }
 
   private boolean isDecreaseAvailable(double value, Users user) {
     Balance balance = balanceRepository.findByUser(user);
 
-    return balance.getBalanceValue() - value >= 0;
+    return balance.getBalanceValue() + value >= 0;
   }
 
   public Balance getBalance(Users user) {
