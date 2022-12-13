@@ -98,7 +98,7 @@ public class Users implements UserDetails {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Users users = (Users) o;
-    return Objects.equals(id, users.id) && Objects.equals(username, users.username) && Objects.equals(password, users.password) && Objects.equals(roles, users.roles);
+    return Objects.equals(id, users.id) && Objects.equals(username, users.username) && Objects.equals(password, users.password);
   }
 
   @Override
