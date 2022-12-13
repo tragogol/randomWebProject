@@ -63,7 +63,7 @@ public class MarketPlaceController {
   @GetMapping("marketplace/product_info")
   public ResponseEntity<?> productInfo(@RequestParam long id) {
     StringBuilder responseBody = new StringBuilder(productRepository.findById(id).getName() + "\n");
-    responseBody.append(productRequestService.getProductPrice(id));
+    responseBody.append(productRequestService.getMinProductPrice(id));
     return ResponseEntity.status(HttpStatus.OK).body(responseBody);
   }
 
