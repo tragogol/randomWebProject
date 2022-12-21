@@ -14,4 +14,13 @@ public class MarketPlaceAdvice {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   String ProductRequestNotFoundHandler(ProductRequestNotFoundException ex){ return  ex.getMessage(); }
 
+  @ResponseBody
+  @ExceptionHandler(ProductNotFoundException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  String ProductNotFoundHandler(ProductNotFoundException ex) { return ex.getMessage(); }
+
+  @ResponseBody
+  @ExceptionHandler(ProductStoreNotFoundException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  String ProductStoreNotFoundHandler(ProductStoreNotFoundException ex) { return ex.getMessage(); }
 }
