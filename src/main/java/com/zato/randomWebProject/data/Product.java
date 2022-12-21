@@ -1,8 +1,6 @@
 package com.zato.randomWebProject.data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Product {
@@ -36,4 +34,5 @@ public class Product {
         ", name='" + name +
         '}';
   }
+
 }
