@@ -5,7 +5,9 @@ import com.zato.randomWebProject.repository.ProductRepository;
 import com.zato.randomWebProject.repository.ProductRequestRepository;
 import com.zato.randomWebProject.repository.ProductStoreRepository;
 import com.zato.randomWebProject.service.*;
+import com.zato.randomWebProject.util.ProductNotFoundException;
 import com.zato.randomWebProject.util.ProductRequestNotFoundException;
+import com.zato.randomWebProject.util.ProductStoreNotFoundException;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -14,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -64,30 +64,30 @@ public class MarketPlaceController {
 
   @GetMapping("marketPlace/requests/{id}")
   public EntityModel<ProductRequestWOCredentials> getRequest(@PathVariable Long id) {
-    ProductRequest request = productRequestRepository.findById(id)
-        .orElseThrow(ProductRequestNotFoundException::new);
-    ProductRequestWOCredentials tmpProductRequest = new ProductRequestWOCredentials();
-    tmpProductRequest.copyValues(request);
-    return EntityModel.of(tmpProductRequest, linkTo(methodOn(MarketPlaceController.class).getRequest(id)).withSelfRel());
+      ProductRequest request = productRequestRepository.findById(id)
+              .orElseThrow(ProductRequestNotFoundException::new);
+      ProductRequestWOCredentials tmpProductRequest = new ProductRequestWOCredentials();
+      tmpProductRequest.copyValues(request);
+      return EntityModel.of(tmpProductRequest, linkTo(methodOn(MarketPlaceController.class).getRequest(id)).withSelfRel());
   }
 
-  @GetMapping("marketplace/product_list")
-  public ResponseEntity<?> productInfo() {
-    List<Product> productList = productService.getAllProduct();
-    StringBuilder responseBody = new StringBuilder();
-    for (Product product:
-         productList) {
-      responseBody.append(product.toString()).append("\n");
-    }
+  @GetMapping("marketplace/products_list")
+  public CollectionModel<EntityModel<Product>> productsList() {
+    List<EntityModel<Product>> products = productRepository.findAll().stream().map(product -> EntityModel.of(product,
+            linkTo(methodOn(MarketPlaceController.class).productList(product.getId())).withSelfRel(),
+            linkTo(methodOn(MarketPlaceController.class).productsList()).withRel("product_list"))).toList();
 
-    return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+    return CollectionModel.of(products,
+            linkTo(methodOn(MarketPlaceController.class).productsList()).withSelfRel());
   }
 
   @GetMapping("marketplace/product_info")
-  public ResponseEntity<?> productInfo(@RequestParam long id) {
-    StringBuilder responseBody = new StringBuilder(productRepository.findById(id).getName() + "\n");
-    responseBody.append(productRequestService.getMinProductPrice(id));
-    return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+  public EntityModel<Product> productList(@RequestParam long id) {
+    Product product = productRepository.findById(id);
+    if (product == null) {
+      throw new ProductNotFoundException();
+    }
+    return EntityModel.of(product, linkTo(methodOn(MarketPlaceController.class).productList(id)).withSelfRel());
   }
 
   @GetMapping("marketplace/register_product")
@@ -119,18 +119,24 @@ public class MarketPlaceController {
   }
 
   @GetMapping("marketplace/storage_list")
-  public ResponseEntity<?> getStorageList() {
-    List<ProductStore> selfStorage = productStoreService.getYourStorage(userService.findSelfUser());
+  public CollectionModel<EntityModel<ProductStore>> getStorageList() {
+    List<EntityModel<ProductStore>> productStores = productStoreRepository.findAllByUserId(userService.findSelfUser().getId())
+            .stream().map(productStore -> EntityModel.of(productStore, linkTo(methodOn(MarketPlaceController.class).getSingleStorage(productStore.getProductId())).withSelfRel(),
+                    linkTo(methodOn(MarketPlaceController.class).getStorageList()).withRel("storage_list"))).toList();
 
-    if (selfStorage.isEmpty()) return ResponseEntity.status(HttpStatus.OK).body("Empty");
-
-    StringBuilder responseBody = new StringBuilder();
-    for (ProductStore singleStore :
-        selfStorage) {
-      responseBody.append(singleStore.toString()).append("\n");
-    }
-    return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+    return CollectionModel.of(productStores, linkTo(methodOn(MarketPlaceController.class).getStorageList()).withSelfRel());
   }
+
+  @GetMapping("marketplace/storage")
+  public EntityModel<ProductStore> getSingleStorage(@RequestParam Long productId) {
+    ProductStore productStore = productStoreRepository.findByUserIdAndProductId(userService.findSelfUser().getId(), productId);
+    if (productStore == null) {
+      throw new ProductStoreNotFoundException();
+    } else {
+      return EntityModel.of(productStore, linkTo(methodOn(MarketPlaceController.class).getSingleStorage(productId)).withSelfRel());
+    }
+  }
+
 
   @GetMapping("marketplace/buy_product")
   public ResponseEntity<?> buyProduct(@RequestParam String productName, @RequestParam Long quantity,
