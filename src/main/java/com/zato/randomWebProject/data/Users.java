@@ -88,9 +88,8 @@ public class Users implements UserDetails {
   public String toString() {
     return "Users{" +
             "user_id=" + id +
-            ", username='" + username + '\'' +
-            ", roles=" + roles.toString() +
-            '}';
+            ", username='" + username +
+        '}';
   }
 
   @Override
