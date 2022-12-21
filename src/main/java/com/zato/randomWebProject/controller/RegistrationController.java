@@ -4,10 +4,15 @@ import com.zato.randomWebProject.data.Users;
 import com.zato.randomWebProject.repository.UsersRepository;
 import com.zato.randomWebProject.service.BalanceService;
 import com.zato.randomWebProject.service.UserService;
+import com.zato.randomWebProject.util.UserAlreadyExistException;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class RegistrationController {
@@ -22,20 +27,15 @@ public class RegistrationController {
         this.balanceService = balanceService;
     }
 
-    @GetMapping("/registration")
-    public ResponseEntity<?> registration(Model model) {
-        model.addAttribute("userForm", new Users());
-
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Registration gate");
-    }
-
     @PostMapping("/registration")
     public ResponseEntity<?> addUser(@RequestBody Users userForm) {
-        if (!userService.saveUser(userForm)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exist");
+        if (userService.saveUser(userForm)){
+            Users tmpUser = usersRepository.findByUsername(userForm.getUsername());
+            balanceService.createBalance(tmpUser);
+            return ResponseEntity.status(HttpStatus.OK).body("Successful registration");
+        } else {
+            throw new UserAlreadyExistException() ;
         }
-        Users tmpUser = usersRepository.findByUsername(userForm.getUsername());
-        balanceService.createBalance(tmpUser);
-        return ResponseEntity.status(HttpStatus.OK).body("User created");
+
     }
 }
