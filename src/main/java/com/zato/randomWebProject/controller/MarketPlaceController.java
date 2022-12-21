@@ -2,13 +2,23 @@ package com.zato.randomWebProject.controller;
 
 import com.zato.randomWebProject.data.*;
 import com.zato.randomWebProject.repository.ProductRepository;
+import com.zato.randomWebProject.repository.ProductRequestRepository;
 import com.zato.randomWebProject.repository.ProductStoreRepository;
 import com.zato.randomWebProject.service.*;
+import com.zato.randomWebProject.util.ProductRequestNotFoundException;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class MarketPlaceController {
@@ -17,6 +27,7 @@ public class MarketPlaceController {
   private final ProductService productService;
   private final ProductRequestService productRequestService;
   private final ProductRepository productRepository;
+  private final ProductRequestRepository productRequestRepository;
   private final ProductStoreService productStoreService;
   private final ProductStoreRepository productStoreRepository;
 
@@ -25,27 +36,39 @@ public class MarketPlaceController {
 
   public MarketPlaceController(BalanceService balanceService, ProductService productService,
                                ProductRequestService productRequestService, ProductRepository productRepository,
-                               ProductStoreService productStoreService, ProductStoreRepository productStoreRepository,
-                               UserService userService) {
+                               ProductRequestRepository productRequestRepository, ProductStoreService productStoreService,
+                               ProductStoreRepository productStoreRepository, UserService userService) {
     this.balanceService = balanceService;
     this.productService = productService;
     this.productRequestService = productRequestService;
     this.productRepository = productRepository;
+    this.productRequestRepository = productRequestRepository;
     this.productStoreService = productStoreService;
     this.productStoreRepository = productStoreRepository;
     this.userService = userService;
   }
 
   @GetMapping("marketplace/requests")
-  public ResponseEntity<?> getRequests() {
-    List<ProductRequest> requests = productRequestService.getRequestList();
-    StringBuilder responseBody = new StringBuilder();
-    for (ProductRequest request :
-        requests) {
-      responseBody.append(request.toString()).append("\n");
+  public CollectionModel<EntityModel<ProductRequestWOCredentials>> getRequests() {
+    List<EntityModel<ProductRequestWOCredentials>> requests = new ArrayList<>();
+    for (ProductRequest productRequest : productRequestRepository.findAll()) {
+      ProductRequestWOCredentials tmp = new ProductRequestWOCredentials();
+      tmp.copyValues(productRequest);
+      EntityModel<ProductRequestWOCredentials> of = EntityModel.of(tmp,
+          linkTo(methodOn(MarketPlaceController.class).getRequest(tmp.getId())).withSelfRel(),
+          linkTo(methodOn(MarketPlaceController.class).getRequests()).withSelfRel());
+      requests.add(of);
     }
+    return CollectionModel.of(requests, linkTo(methodOn(MarketPlaceController.class).getRequests()).withSelfRel());
+  }
 
-    return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+  @GetMapping("marketPlace/requests/{id}")
+  public EntityModel<ProductRequestWOCredentials> getRequest(@PathVariable Long id) {
+    ProductRequest request = productRequestRepository.findById(id)
+        .orElseThrow(ProductRequestNotFoundException::new);
+    ProductRequestWOCredentials tmpProductRequest = new ProductRequestWOCredentials();
+    tmpProductRequest.copyValues(request);
+    return EntityModel.of(tmpProductRequest, linkTo(methodOn(MarketPlaceController.class).getRequest(id)).withSelfRel());
   }
 
   @GetMapping("marketplace/product_list")

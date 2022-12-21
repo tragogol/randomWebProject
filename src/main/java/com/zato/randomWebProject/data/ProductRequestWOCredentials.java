@@ -1,21 +1,14 @@
 package com.zato.randomWebProject.data;
 
-import javax.persistence.*;
 
-@Entity
-public class ProductRequest {
-  @Id
-  @GeneratedValue
+public class ProductRequestWOCredentials {
   private Long id;
-  @ManyToOne
   private Product product;
-
   private Long quantity;
   private Double price;
+  public String seller;
 
-  @ManyToOne
-  public Users seller;
-  public ProductRequest() {}
+  public ProductRequestWOCredentials() {}
 
   public Long getId() {
     return id;
@@ -49,21 +42,19 @@ public class ProductRequest {
     this.price = price;
   }
 
-  public Users getSeller() {
+  public String getSeller() {
     return seller;
   }
 
-  public void setSeller(Users seller) {
+  public void setSeller(String seller) {
     this.seller = seller;
   }
 
-  @Override
-  public String toString() {
-    return "ProductRequest{" +
-        "id=" + id +
-        ", product=" + product +
-        ", quantity=" + quantity +
-        ", price=" + price +
-        '}';
+  public void copyValues(ProductRequest productRequest) {
+    this.id = productRequest.getId();
+    this.product = productRequest.getProduct();
+    this.price = productRequest.getPrice();
+    this.quantity = productRequest.getQuantity();
+    this.seller = productRequest.seller.getUsername();
   }
 }
